@@ -27,8 +27,9 @@ async function updateBook(id, name, releaseDate, description, category) {
 }
 
 async function deleteBook(id) {
+  console.log('delete ==>', id)
   const deletedBook = await prisma.book.delete({
-    where: { id },
+    where: { id: +id },
   });
   return deletedBook;
 }
@@ -57,7 +58,8 @@ export default async function handler(req, res) {
     );
     res.status(200).json(updatedBook);
   } else if (req.method === 'DELETE') {
-    const { id } = req.body;
+    const { id } = req.query;
+    console.log('id da 62 ==>', req.query)
     const deletedBook = await deleteBook(id);
     res.status(200).json(deletedBook);
   } else {

@@ -27,7 +27,7 @@ CREATE TABLE `AuthorToBook` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `AuthorToBook` ADD CONSTRAINT `AuthorToBook_bookId_fkey` FOREIGN KEY (`bookId`) REFERENCES `Book`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `AuthorToBook` ADD CONSTRAINT `AuthorToBook_bookId_fkey` FOREIGN KEY (`bookId`) REFERENCES `Book`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `AuthorToBook` ADD CONSTRAINT `AuthorToBook_authorId_fkey` FOREIGN KEY (`authorId`) REFERENCES `Author`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `AuthorToBook` ADD CONSTRAINT `AuthorToBook_authorId_fkey` FOREIGN KEY (`authorId`) REFERENCES `Author`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

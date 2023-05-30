@@ -23,16 +23,21 @@ async function createBook(bookData) {
   return book;
 }
 
-// async function listBooks() {
-//   const response = await fetch('/api/books');
-//   if (!response.ok) {
-//     throw new Error('Error fetching books');
-//   }
-//   const books = await response.json();
-//   return books;
-// }
+async function createAuthor(authorData) {
+  const response = await fetch('/api/authors', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(authorData),
+  });
+  if (!response.ok) {
+    throw new Error('Error creating author');
+  }
+  const author = await response.json();
+  return author;
+}
 
 async function filterBooksByAuthor(authorName) {
+  console.log('auhotrName', authorName)
   const response = await fetch(`/api/books?author=${encodeURIComponent(authorName)}`);
   if (!response.ok) {
     throw new Error('Error filtering books by author');
@@ -53,7 +58,21 @@ export default function Home() {
   const [books, setBooks] = useState([]);
   const [selectedBookId, setSelectedBookId] = useState(null);
 
-  const handleSubmit = async (e) => {
+
+  const handleSubmitAuthor = async (e) => {
+    e.preventDefault();
+    try {
+      const newAuthor= await createAuthor({ name, birthDate, biography });
+      setAuthors((prevAuthors) => [...prevAuthors, newAuthor]);
+      setName('');
+      setBirthDate('');
+      setBiography('');
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleSubmitBooks = async (e) => {
     e.preventDefault();
     try {
       const newBook = await createBook({ name, releaseDate, description, category });
@@ -109,19 +128,22 @@ export default function Home() {
   };
 
   const handleDeleteBook = async (book) => {
-    // Implemente a lógica para excluir o livro
-    // Exemplo:
-    const response = await fetch(`/api/books/${book.id}`, {
+    try {
+    console.log('book da 102 ==>', book.id);
+    const response = await fetch(`api/books?id=${book.id}`, {
       method: 'DELETE',
     });
   
     if (response.ok) {
-      handleListBooks();
+      router.push('/'); // Redireciona para a página de listagem de livros após a exclusão
+      router.reload()
     } else {
-      console.error('Error deleting book');
+      throw new Error('Error deleting book');
     }
+  } catch (error) {
+    console.error(error)
+  }
   };
-  
 
   const handleListAuthors = async () => {
     try {
@@ -140,8 +162,8 @@ export default function Home() {
   return (
     <div>
       <h1>Create Author</h1>
-      <form onSubmit={handleSubmit}>
-        <input
+      <form onSubmit={handleSubmitAuthor}>
+      <input
           type="text"
           placeholder="Name"
           value={name}
@@ -172,6 +194,35 @@ export default function Home() {
           </li>
         ))}
       </ul>
+
+      <h1>Create Books</h1>
+      <form onSubmit={handleSubmitBooks}>
+        <input
+          type="text"
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Release Date"
+          value={releaseDate}
+          onChange={(e) => setReleaseDate(e.target.value)}
+        />
+        <textarea
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        />
+        <button type="submit">Create</button>
+      </form>
+      <hr />
 
       <h1>Books</h1>
       <button onClick={handleListBooks}>List Books</button>
