@@ -53,31 +53,6 @@ export default function Home() {
   const [books, setBooks] = useState([]);
   const [selectedBookId, setSelectedBookId] = useState(null);
 
-
-  // const handleSubmitAuthors = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const response = await fetch('/api/authors', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({ name, birthDate, biography }),
-  //     });
-  //     if (response.ok) {
-  //       const newAuthor = await response.json();
-  //       setAuthors((prevAuthors) => [...prevAuthors, newAuthor]);
-  //       setName('');
-  //       setBirthDate('');
-  //       setBiography('');
-  //     } else {
-  //       console.error('Error creating author:', response.status);
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
