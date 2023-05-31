@@ -1,5 +1,7 @@
 # Código e Funções - Explicação e exemplos
 
+![Captura de tela de 2023-05-31 16-23-02](https://github.com/joicenicolau/crud_book/assets/112522719/0c9ca6e0-6609-467f-9069-377622e35829)
+
 Recebi um desafio que deveria desenvolver um sistema para uma livraria, neste sistema o usuário deve conseguir gerenciar livros e autores, em Next.js e prisma. 
 
 Tinha como desafio criar duas funcionalidades: 1. No módulo gerência de autores deve ser possível criar e listar autores, sendo que um autor deve ter armazenado seu nome, data de nascimeno e sua biografia; 2. No módulo de livros criar um CRUD de livros, um livro deve ter armazenado seu nome, data de lançamento, uma descrição, a categoria do livro e quais seus autores; 3. Ainda, no módulo de livros, listar os livros por autor. 
@@ -115,5 +117,3 @@ Observe que o código fornecido não inclui a implementação da página de edi�
 Este README fornece uma visão geral do código e sua funcionalidade. Contudo, gostaria de compartilhar uma breve nota pessoal sobre esse projeto. Foi um desafio interessante para mim, pois embora eu tivesse uma boa base em JavaScript e React, o Next.js possui suas particularidades. Foi extremamente gratificante aprender e superar cada obstáculo que encontrei ao longo do caminho. Mencionar que minha maior dificuldade durante o projeto foi lidar com o Prisma. Já havia trabalhado com ORMs anteriormente, como o Sequelize, mas percebi que houve muitas mudanças na documentação do Prisma. Foi um verdadeiro desafio aprender e dominar essa nova ferramenta.
 
 Além disso, este projeto marcou a minha primeira experiência com o desenvolvimento full stack. Embora eu tenha gostado de trabalhar nele, gostaria de ter tido mais tempo para dedicar à refatoração, ao CSS e aos testes. Mesmo assim, estou feliz com o resultado alcançado.
-
-Deploy: 
