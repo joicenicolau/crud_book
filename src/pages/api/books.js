@@ -4,10 +4,10 @@ async function createBook(name, releaseDate, description, category, author) {
   const newBook = await prisma.book.create({
     data: {
       name,
-      releaseDate,
+      releaseDate: new Date(releaseDate),
       description,
       category,
-      authors: { connect: { id: parseInt(author) } }, // Conecta o livro ao autor pelo ID
+      authors: { connect: { id: author } }, // Conecta o livro ao autor pelo ID
     },
   });
   return newBook;
@@ -61,7 +61,6 @@ export default async function handler(req, res) {
         authors: true,
       },
     });
-    console.log('book ==>', books)
     res.status(200).json(books);
   } else if (req.method === 'PUT') {
     const { id, name, releaseDate, description, category } = req.body;

@@ -51,14 +51,13 @@ export default function Home() {
   const [selectedAuthor, setSelectedAuthor] = useState('');
   const [selectedAuthorId, setSelectedAuthorId] = useState(null);
   const [filterAuthorId, setFilterAuthorId] = useState(null);
-  const [author, setAuthor] = useState('');
-
+  const [author, setAuthor] = useState(null);
 
 
   const handleSubmitAuthor = async (e) => {
     e.preventDefault();
     try {
-      const newAuthor= await createAuthor({ nameAuthor, birthDate, biography });
+      const newAuthor= await createAuthor({ name: nameAuthor, birthDate, biography });
       setAuthors((prevAuthors) => [...prevAuthors, newAuthor]);
       setNameAuthor('');
       setBirthDate('');
@@ -70,14 +69,16 @@ export default function Home() {
 
   const handleSubmitBooks = async (e) => {
     e.preventDefault();
+    // console.log('s', selectedAuthorId)
     try {
-      const newBook = await createBook({ nameBook, releaseDate, description, category, authors: selectedAuthorId });
+      const newBook = await createBook({ name: nameBook, releaseDate, description, category, author: author });
       setBooks((prevBooks) => [...prevBooks, newBook]);
       setNameBook('');
       setReleaseDate('');
       setDescription('');
       setCategory('');
-      setSelectedAuthorId(null);
+      setAuthor(null);
+      // console.log('newBook ==>', newBook);
     } catch (error) {
       console.error(error);
     }
@@ -104,7 +105,6 @@ export default function Home() {
     handleListBooks();
   }, [filterAuthorId]);
   
-
   const router = useRouter();
 
   const handleEditBook = async (book) => {
@@ -114,7 +114,6 @@ export default function Home() {
 
   const handleDeleteBook = async (book) => {
     try {
-    console.log('book da 102 ==>', book.id);
     const response = await fetch(`api/books?id=${book.id}`, {
       method: 'DELETE',
     });
@@ -239,57 +238,39 @@ export default function Home() {
       <h1 className="text-3xl font-bold mt-8">Books</h1>
       <button onClick={handleListBooks} className="border border-gray-500 rounded px-4 py-2">List Books</button>
       <button onClick={handleClearList} className="border border-gray-500 rounded px-4 py-2">Clear List</button>
-      
-      
-      {/* <button onClick={handleFilterBooksByAuthor} className="border border-gray-500 rounded px-4 py-2">Filter</button> */}
 
-   
+      <select
+        value={selectedAuthorId || ''}
+        onChange={(e) => handleSelectAuthor(+e.target.value)}
+        className="border border-gray-300 rounded px-4 py-2"
+      >
+          <option value="">All Authors</option>
+          {authors.map((author) => (
+            <option key={author.id} value={author.id}>
+              {author.name}
+            </option>
+          ))}
+      </select>
 
-
-      {/* <select
-  value={selectedAuthorId}
-  onChange={(e) => setSelectedAuthorId(e.target.value)}
-  className="border border-gray-300 rounded px-4 py-2"
->
-  <option value="">All Authors</option>
-  {authors.map((author) => (
-    <option key={author.id} value={author.id}>
-      {author.name}
-    </option>
-  ))}
-</select> */}
-<select
-  value={selectedAuthorId || ''}
-  onChange={(e) => handleSelectAuthor(+e.target.value)}
-  className="border border-gray-300 rounded px-4 py-2"
->
-  <option value="">All Authors</option>
-  {authors.map((author) => (
-    <option key={author.id} value={author.id}>
-      {author.name}
-    </option>
-  ))}
-</select>
 {/* <button onClick={handleFilterBooksByAuthor} className="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
   Filter
 </button> */}
-<button onClick={handleClearFilter} className="ml-2 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-  Clear Filter
-</button>
-
+      <button onClick={handleClearFilter} className="ml-2 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+        Clear Filter
+      </button>
 
       <ul>
-      {books
-      .filter((book) => ( 
-        !selectedAuthorId ? book : book.authors[0].authorId === selectedAuthorId
-      ))
-      .map((book) => (
-        <li key={book.id}>
-      {book.name} - {book.category} - {book.description}
-          <button onClick={() => handleEditBook(book)} className="border border-gray-500 rounded px-4 py-2">Edit</button>
-          <button onClick={() => handleDeleteBook(book)} className="border border-gray-500 rounded px-4 py-2">Delete</button>
-        </li>
-      ))}
+        {books
+        .filter((book) => ( 
+          !selectedAuthorId ? book : book.authors[0]?.authorId === selectedAuthorId
+        ))
+        .map((book) => (
+          <li key={book.id}>
+        {book.name} - {book.category} - {book.description}
+            <button onClick={() => handleEditBook(book)} className="border border-gray-500 rounded px-4 py-2">Edit</button>
+            <button onClick={() => handleDeleteBook(book)} className="border border-gray-500 rounded px-4 py-2">Delete</button>
+          </li>
+        ))}
       </ul>
     </div>
   );
