@@ -5,7 +5,6 @@ export default function EditBook() {
   const router = useRouter();
   const { id } = router.query;
 
-
   const [book, setBook] = useState({
     id,
     name: '',

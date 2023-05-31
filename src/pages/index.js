@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import 'tailwindcss/tailwind.css';
 
 async function listAuthors() {
   const response = await fetch('/api/authors');
@@ -36,35 +37,30 @@ async function createAuthor(authorData) {
   return author;
 }
 
-async function filterBooksByAuthor(authorName) {
-  console.log('auhotrName', authorName)
-  const response = await fetch(`/api/books?author=${encodeURIComponent(authorName)}`);
-  if (!response.ok) {
-    throw new Error('Error filtering books by author');
-  }
-  const books = await response.json();
-  return books;
-}
-
 export default function Home() {
-  const [name, setName] = useState('');
+  const [nameAuthor, setNameAuthor] = useState('');
+  const [nameBook, setNameBook] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [biography, setBiography] = useState('');
   const [releaseDate, setReleaseDate] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
-  const [authorFilter, setAuthorFilter] = useState('');
   const [authors, setAuthors] = useState([]);
   const [books, setBooks] = useState([]);
   const [selectedBookId, setSelectedBookId] = useState(null);
+  const [selectedAuthor, setSelectedAuthor] = useState('');
+  const [selectedAuthorId, setSelectedAuthorId] = useState(null);
+  const [filterAuthorId, setFilterAuthorId] = useState(null);
+  const [author, setAuthor] = useState('');
+
 
 
   const handleSubmitAuthor = async (e) => {
     e.preventDefault();
     try {
-      const newAuthor= await createAuthor({ name, birthDate, biography });
+      const newAuthor= await createAuthor({ nameAuthor, birthDate, biography });
       setAuthors((prevAuthors) => [...prevAuthors, newAuthor]);
-      setName('');
+      setNameAuthor('');
       setBirthDate('');
       setBiography('');
     } catch (error) {
@@ -75,24 +71,25 @@ export default function Home() {
   const handleSubmitBooks = async (e) => {
     e.preventDefault();
     try {
-      const newBook = await createBook({ name, releaseDate, description, category });
+      const newBook = await createBook({ nameBook, releaseDate, description, category, authors: selectedAuthorId });
       setBooks((prevBooks) => [...prevBooks, newBook]);
-      setName('');
+      setNameBook('');
       setReleaseDate('');
       setDescription('');
       setCategory('');
+      setSelectedAuthorId(null);
     } catch (error) {
       console.error(error);
     }
   };
   
-  const handleAuthorFilterChange = (e) => {
-    setAuthorFilter(e.target.value);
-  };
-  
   const handleListBooks = async () => {
     try {
-      const response = await fetch('/api/books');
+      let url = '/api/books';
+      if (filterAuthorId) {
+        url += `?authorId=${filterAuthorId}`;
+      }
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error('Error fetching books');
       }
@@ -102,23 +99,11 @@ export default function Home() {
       console.error(error);
     }
   };
-
-  const handleFilterBooksByAuthor = async () => {
-    try {
-      const filteredBooks = await filterBooksByAuthor(authorFilter);
-      setBooks(filteredBooks);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  
+    
   useEffect(() => {
-    if (authorFilter === '') {
-      handleListBooks();
-    } else {
-      handleFilterBooksByAuthor();
-    }
-  }, [authorFilter]);
+    handleListBooks();
+  }, [filterAuthorId]);
+  
 
   const router = useRouter();
 
@@ -159,86 +144,150 @@ export default function Home() {
     setBooks([]);
   };
 
+  const handleSelectAuthor = (authorId) => {
+    setSelectedAuthorId(authorId);
+    setSelectedAuthor(authors.filter((author) => author.id === authorId)?.name || '');
+  };
+  
+  const handleClearFilter = () => {
+    setSelectedAuthorId(null);
+    setSelectedAuthor('');
+    setFilterAuthorId(null);
+  };
+
   return (
-    <div>
-      <h1>Create Author</h1>
-      <form onSubmit={handleSubmitAuthor}>
+    <div className="container mx-auto px-4">
+      <h1 className="text-3xl font-bold mt-8">Create Author</h1>
+      <form onSubmit={handleSubmitAuthor} className="mt-4">
       <input
           type="text"
           placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={nameAuthor}
+          onChange={(e) => setNameAuthor(e.target.value)}
+          className="border border-gray-300 rounded px-4 py-2"
         />
         <input
           type="text"
           placeholder="Birth Date"
           value={birthDate}
           onChange={(e) => setBirthDate(e.target.value)}
+          className="border border-gray-300 rounded px-4 py-2"
         />
         <textarea
           placeholder="Biography"
           value={biography}
           onChange={(e) => setBiography(e.target.value)}
+          className="border border-gray-300 rounded px-4 py-2"
         />
-        <button type="submit">Create</button>
+        <button type="submit"
+        className="border border-gray-500 rounded px-4 py-2"
+        >Create</button>
       </form>
       <hr />
 
-      <h1>Authors</h1>
-      <button onClick={handleListAuthors}>List Created Authors</button>
-      <button onClick={handleClearList}>Clear List</button>
-      <ul>
+      <h1 className="text-3xl font-bold mt-8">Authors</h1>
+      <button onClick={handleListAuthors} className="border border-gray-500 rounded px-4 py-2">List Authors</button>
+      <button onClick={handleClearList} className="border border-gray-500 rounded px-4 py-2">Clear List</button>
+      <ol>
         {authors.map((author) => (
           <li key={author.id}>
             {author.name} - {author.birthDate} - {author.biography}
           </li>
         ))}
-      </ul>
+      </ol>
 
-      <h1>Create Books</h1>
+      <h1 className="text-3xl font-bold mt-8">Create Books</h1>
       <form onSubmit={handleSubmitBooks}>
         <input
           type="text"
           placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={nameBook}
+          onChange={(e) => setNameBook(e.target.value)}
+          className="border border-gray-300 rounded px-4 py-2"
         />
         <input
           type="text"
           placeholder="Release Date"
           value={releaseDate}
           onChange={(e) => setReleaseDate(e.target.value)}
+          className="border border-gray-300 rounded px-4 py-2"
         />
         <textarea
           placeholder="Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          className="border border-gray-300 rounded px-4 py-2"
         />
         <input
           type="text"
           placeholder="Category"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
+          className="border border-gray-300 rounded px-4 py-2"
         />
-        <button type="submit">Create</button>
+         <input
+          type="number"
+          placeholder="Id"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          className="border border-gray-300 rounded px-4 py-2"
+        />
+        <button type="submit" className="border border-gray-500 rounded px-4 py-2">Create</button>
       </form>
       <hr />
 
-      <h1>Books</h1>
-      <button onClick={handleListBooks}>List Books</button>
-      <button onClick={handleClearList}>Clear List</button>
-      <input
-        type="text"
-        placeholder="Author Filter"
-        value={authorFilter}
-        onChange={handleAuthorFilterChange}
-      />
+      <h1 className="text-3xl font-bold mt-8">Books</h1>
+      <button onClick={handleListBooks} className="border border-gray-500 rounded px-4 py-2">List Books</button>
+      <button onClick={handleClearList} className="border border-gray-500 rounded px-4 py-2">Clear List</button>
+      
+      
+      {/* <button onClick={handleFilterBooksByAuthor} className="border border-gray-500 rounded px-4 py-2">Filter</button> */}
+
+   
+
+
+      {/* <select
+  value={selectedAuthorId}
+  onChange={(e) => setSelectedAuthorId(e.target.value)}
+  className="border border-gray-300 rounded px-4 py-2"
+>
+  <option value="">All Authors</option>
+  {authors.map((author) => (
+    <option key={author.id} value={author.id}>
+      {author.name}
+    </option>
+  ))}
+</select> */}
+<select
+  value={selectedAuthorId || ''}
+  onChange={(e) => handleSelectAuthor(+e.target.value)}
+  className="border border-gray-300 rounded px-4 py-2"
+>
+  <option value="">All Authors</option>
+  {authors.map((author) => (
+    <option key={author.id} value={author.id}>
+      {author.name}
+    </option>
+  ))}
+</select>
+{/* <button onClick={handleFilterBooksByAuthor} className="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+  Filter
+</button> */}
+<button onClick={handleClearFilter} className="ml-2 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+  Clear Filter
+</button>
+
+
       <ul>
-      {books.map((book) => (
+      {books
+      .filter((book) => ( 
+        !selectedAuthorId ? book : book.authors[0].authorId === selectedAuthorId
+      ))
+      .map((book) => (
         <li key={book.id}>
-      {book.name} - {book.releaseDate} - {book.description}
-          <button onClick={() => handleEditBook(book)}>Edit</button>
-          <button onClick={() => handleDeleteBook(book)}>Delete</button>
+      {book.name} - {book.category} - {book.description}
+          <button onClick={() => handleEditBook(book)} className="border border-gray-500 rounded px-4 py-2">Edit</button>
+          <button onClick={() => handleDeleteBook(book)} className="border border-gray-500 rounded px-4 py-2">Delete</button>
         </li>
       ))}
       </ul>

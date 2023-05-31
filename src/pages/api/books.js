@@ -1,21 +1,21 @@
 import prisma from '../../../prisma/prisma';
 
-async function createBook(name, releaseDate, description, category) {
+async function createBook(name, releaseDate, description, category, author) {
   const newBook = await prisma.book.create({
     data: {
       name,
       releaseDate,
       description,
       category,
+      authors: { connect: { id: parseInt(author) } }, // Conecta o livro ao autor pelo ID
     },
   });
   return newBook;
 }
 
 async function updateBook(id, name, releaseDate, description, category) {
-  console.log('id ==>', id);
   const updatedBook = await prisma.book.update({
-    where: { id },
+    where: { id: +id },
     data: {
       name,
       releaseDate,
@@ -26,8 +26,23 @@ async function updateBook(id, name, releaseDate, description, category) {
   return updatedBook;
 }
 
+export async function filterBooksByAuthor(authorId) {
+  const books = await prisma.book.findMany({
+    where: {
+      authors: {
+        some: {
+          authorId: +authorId
+        }
+      }
+    },
+    include: {
+      authors: true,
+    },
+  });
+  return books;
+}
+
 async function deleteBook(id) {
-  console.log('delete ==>', id)
   const deletedBook = await prisma.book.delete({
     where: { id: +id },
   });
@@ -36,8 +51,8 @@ async function deleteBook(id) {
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const { name, releaseDate, description, category } = req.body;
-    const newBook = await createBook(name, releaseDate, description, category);
+    const { name, releaseDate, description, category, author } = req.body;
+    const newBook = await createBook(name, releaseDate, description, category, author);
     res.status(201).json(newBook);
   } else if (req.method === 'GET') {
     // Listar todos os livros
@@ -46,6 +61,7 @@ export default async function handler(req, res) {
         authors: true,
       },
     });
+    console.log('book ==>', books)
     res.status(200).json(books);
   } else if (req.method === 'PUT') {
     const { id, name, releaseDate, description, category } = req.body;
@@ -59,7 +75,6 @@ export default async function handler(req, res) {
     res.status(200).json(updatedBook);
   } else if (req.method === 'DELETE') {
     const { id } = req.query;
-    console.log('id da 62 ==>', req.query)
     const deletedBook = await deleteBook(id);
     res.status(200).json(deletedBook);
   } else {
